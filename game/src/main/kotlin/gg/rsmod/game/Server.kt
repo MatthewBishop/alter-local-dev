@@ -187,7 +187,7 @@ class Server {
          */
         val rsaService = world.getService(RsaService::class.java)
         val clientChannelInitializer = ClientChannelInitializer(revision = gameContext.revision,
-                rsaExponent = rsaService?.getExponent(), rsaModulus = rsaService?.getModulus(),
+                rsaExponent = rsaService?.RSA_EXPONENT, rsaModulus = rsaService?.RSA_MODULUS,
                 filestore = world.filestore, world = world)
 
         bootstrap.group(acceptGroup, ioGroup)
