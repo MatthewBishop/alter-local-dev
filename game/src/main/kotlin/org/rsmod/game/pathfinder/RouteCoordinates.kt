@@ -1,7 +1,6 @@
 package org.rsmod.game.pathfinder
 
-@JvmInline
-public value class RouteCoordinates(public val packed: Int) {
+public data class RouteCoordinates(public val packed: Int) {
 
     public val x: Int get() = (packed shr 14) and 0x3FFF
 
@@ -18,12 +17,6 @@ public value class RouteCoordinates(public val packed: Int) {
         z = z + zOffset,
         level = level + levelOffset
     )
-
-    public operator fun component1(): Int = x
-
-    public operator fun component2(): Int = z
-
-    public operator fun component3(): Int = level
 
     override fun toString(): String {
         return "RouteCoordinates(x=$x, z=$z, level=$level)"
