@@ -18,6 +18,7 @@ import net.runelite.cache.IndexType
 import net.runelite.cache.definitions.loaders.LocationsLoader
 import net.runelite.cache.definitions.loaders.MapLoader
 import net.runelite.cache.fs.Store
+import org.rsmod.game.pathfinder.collision.applyUpdate
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -215,7 +216,10 @@ class DefinitionSet {
             world.chunks.getOrCreate(tile).blockedTiles.add(tile)
             blockedTileBuilder.putTile(tile, false, *Direction.NESW)
         }
-        world.collision.applyUpdate(blockedTileBuilder.build())
+        val update = blockedTileBuilder.build();
+        world.collision.applyUpdate(update)
+        world.collisionFlags.applyUpdate(update)
+//TODO ADVO FIX PLZ
 
         if (xteaService == null) {
             /*

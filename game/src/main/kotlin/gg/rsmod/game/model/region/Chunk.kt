@@ -11,6 +11,7 @@ import gg.rsmod.game.service.GameService
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import org.rsmod.game.pathfinder.collision.applyUpdate
 
 /**
  * Represents an 8x8 tile in the game map.
@@ -78,8 +79,18 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
         /*
          * Objects will affect the collision map.
          */
+//        if (entity.entityType.isObject) {
+//            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.ADD)
+//        }
         if (entity.entityType.isObject) {
-            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.ADD)
+            val update = CollisionUpdate.Builder()
+                .also {
+                    it.setType(CollisionUpdate.Type.ADD)
+                    it.putObject(world.definitions, entity as GameObject)
+                }
+                .build()
+            world.collision.applyUpdate(update)
+            world.collisionFlags.applyUpdate(update)
         }
 
         /*
@@ -130,8 +141,18 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
          * [EntityType]s that are considered objects will be removed from our
          * collision map.
          */
+//        if (entity.entityType.isObject) {
+//            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.REMOVE)
+//        }
         if (entity.entityType.isObject) {
-            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.REMOVE)
+            val update = CollisionUpdate.Builder()
+                .also {
+                    it.setType(CollisionUpdate.Type.REMOVE)
+                    it.putObject(world.definitions, entity as GameObject)
+                }
+                .build()
+            world.collision.applyUpdate(update)
+            world.collisionFlags.applyUpdate(update)
         }
 
         entities[tile]?.remove(entity)

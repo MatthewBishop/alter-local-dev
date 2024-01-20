@@ -38,6 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import mu.KLogging
 import net.runelite.cache.IndexType
 import net.runelite.cache.fs.Store
+import org.rsmod.game.pathfinder.collision.CollisionFlagMap
 import java.io.File
 import java.security.SecureRandom
 import java.util.ArrayList
@@ -92,7 +93,7 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
     val chunks = ChunkSet(this)
 
     val collision = CollisionManager(chunks)
-
+    val collisionFlags = CollisionFlagMap()
     val instanceAllocator = InstancedMapAllocator()
 
     /**

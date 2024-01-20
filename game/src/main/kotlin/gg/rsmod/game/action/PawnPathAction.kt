@@ -8,7 +8,6 @@ import gg.rsmod.game.model.entity.Entity
 import gg.rsmod.game.model.entity.Npc
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.model.entity.Player
-import gg.rsmod.game.model.path.PathRequest
 import gg.rsmod.game.model.queue.QueueTask
 import gg.rsmod.game.model.queue.TaskPriority
 import gg.rsmod.game.model.timer.FROZEN_TIMER
@@ -16,7 +15,10 @@ import gg.rsmod.game.model.timer.RESET_PAWN_FACING_TIMER
 import gg.rsmod.game.model.timer.STUN_TIMER
 import gg.rsmod.game.plugin.Plugin
 import gg.rsmod.util.AabbUtil
+import org.rsmod.game.pathfinder.PathFinder
+import org.rsmod.game.pathfinder.collision.CollisionStrategies
 import java.lang.ref.WeakReference
+import java.util.*
 
 /**
  * @author Tom <rspsmods@gmail.com>
@@ -197,29 +199,43 @@ object PawnPathAction {
             }
         }
 
-        val builder = PathRequest.Builder()
-                .setPoints(sourceTile, targetTile)
-                .setSourceSize(sourceSize, sourceSize)
-                .setTargetSize(targetSize, targetSize)
-                .setProjectilePath(lineOfSight || projectile)
-                .setTouchRadius(interactionRange)
-                .clipPathNodes(node = true, link = true)
+        val pathFinder = PathFinder(pawn.world.collisionFlags)
+        val newRoute = pathFinder.findPath(
+            level = pawn.tile.height,
+            srcX = sourceTile.x,
+            srcZ = sourceTile.z,
+            destX = targetTile.x,
+            destZ = targetTile.z,
+            srcSize = sourceSize,
+            destWidth = targetSize,
+            destHeight = targetSize,
+            collision = CollisionStrategies.Normal,
+        )
+        val tileQueue: Queue<Tile> = ArrayDeque(newRoute.waypoints.map { Tile(it.x, it.z, it.level) })
+        pawn.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = true)
 
-        if (!lineOfSight && !projectile) {
-            builder.clipOverlapTiles().clipDiagonalTiles()
-        }
+//        val builder = PathRequest.Builder()
+//                .setPoints(sourceTile, targetTile)
+//                .setSourceSize(sourceSize, sourceSize)
+//                .setTargetSize(targetSize, targetSize)
+//                .setProjectilePath(lineOfSight || projectile)
+//                .setTouchRadius(interactionRange)
+//                .clipPathNodes(node = true, link = true)
+//
+//        if (!lineOfSight && !projectile) {
+//            builder.clipOverlapTiles().clipDiagonalTiles()
+//        }
+//
+//        val route = pawn.createPathFindingStrategy().calculateRoute(builder.build())
+//        pawn.walkPath(route.path, MovementQueue.StepType.NORMAL, detectCollision = true)
+//        while (!pawn.tile.sameAs(route.tail)) {
+//            if (!targetTile.sameAs(target.tile)) {
+//                return walkTo(it, pawn, target, interactionRange, lineOfSight)
+//            }
+//            it.wait(1)
+//        }
 
-        val route = pawn.createPathFindingStrategy().calculateRoute(builder.build())
-        pawn.walkPath(route.path, MovementQueue.StepType.NORMAL, detectCollision = true)
-
-        while (!pawn.tile.sameAs(route.tail)) {
-            if (!targetTile.sameAs(target.tile)) {
-                return walkTo(it, pawn, target, interactionRange, lineOfSight)
-            }
-            it.wait(1)
-        }
-
-        return route.success
+        return newRoute.success
     }
 
     private fun overlap(tile1: Tile, size1: Int, tile2: Tile, size2: Int): Boolean = AabbUtil.areOverlapping(tile1.x, tile1.z, size1, size1, tile2.x, tile2.z, size2, size2)
