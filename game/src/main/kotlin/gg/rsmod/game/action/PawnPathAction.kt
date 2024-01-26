@@ -8,6 +8,7 @@ import gg.rsmod.game.model.entity.Entity
 import gg.rsmod.game.model.entity.Npc
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.model.entity.Player
+import gg.rsmod.game.model.path.PathRequest
 import gg.rsmod.game.model.queue.QueueTask
 import gg.rsmod.game.model.queue.TaskPriority
 import gg.rsmod.game.model.timer.FROZEN_TIMER
@@ -212,7 +213,14 @@ object PawnPathAction {
             collision = CollisionStrategies.Normal,
         )
         val tileQueue: Queue<Tile> = ArrayDeque(newRoute.waypoints.map { Tile(it.x, it.z, it.level) })
-        pawn.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = true)
+        pawn.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = false)
+
+        while (!pawn.tile.sameAs(tileQueue.last())) {
+            if (!targetTile.sameAs(target.tile)) {
+                return walkTo(it, pawn, target, interactionRange, lineOfSight)
+            }
+            it.wait(1)
+        }
 
 //        val builder = PathRequest.Builder()
 //                .setPoints(sourceTile, targetTile)

@@ -3,6 +3,8 @@ package gg.rsmod.game.model
 import gg.rsmod.game.model.MovementQueue.Step
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.sync.block.UpdateBlockType
+import org.rsmod.game.pathfinder.LineValidator
+import org.rsmod.game.pathfinder.StepValidator
 import java.util.ArrayDeque
 import java.util.Deque
 import kotlin.math.abs
@@ -121,5 +123,12 @@ class MovementQueue(val pawn: Pawn) {
         NORMAL,
         FORCED_WALK,
         FORCED_RUN
+    }
+
+    private val stepValidator: StepValidator = StepValidator(world.collisionFlags)
+    private val lineValidator: LineValidator = LineValidator(world.collisionFlags)
+
+    fun canStep(x: Int, y: Int): Boolean {
+        return stepValidator.canTravel(pawn, x, y)
     }
 }

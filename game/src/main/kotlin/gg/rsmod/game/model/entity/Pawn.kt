@@ -30,6 +30,8 @@ import gg.rsmod.game.service.log.LoggerService
 import gg.rsmod.game.sync.block.UpdateBlockBuffer
 import gg.rsmod.game.sync.block.UpdateBlockType
 import kotlinx.coroutines.CoroutineScope
+import org.rsmod.game.pathfinder.LineValidator
+import org.rsmod.game.pathfinder.StepValidator
 import java.lang.ref.WeakReference
 import java.util.ArrayDeque
 import java.util.Queue

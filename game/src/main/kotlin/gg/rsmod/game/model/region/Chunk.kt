@@ -79,16 +79,11 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
         /*
          * Objects will affect the collision map.
          */
-//        if (entity.entityType.isObject) {
-//            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.ADD)
-//        }
         if (entity.entityType.isObject) {
-            val update = CollisionUpdate.Builder()
-                .also {
-                    it.setType(CollisionUpdate.Type.ADD)
-                    it.putObject(world.definitions, entity as GameObject)
-                }
-                .build()
+            val builder = CollisionUpdate.Builder()
+            builder.setType(CollisionUpdate.Type.ADD)
+            builder.putObject(world.definitions, entity as GameObject)
+            val update = builder.build()
             world.collision.applyUpdate(update)
             world.collisionFlags.applyUpdate(update)
         }
@@ -141,16 +136,11 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
          * [EntityType]s that are considered objects will be removed from our
          * collision map.
          */
-//        if (entity.entityType.isObject) {
-//            world.collision.applyCollision(world.definitions, entity as GameObject, CollisionUpdate.Type.REMOVE)
-//        }
         if (entity.entityType.isObject) {
-            val update = CollisionUpdate.Builder()
-                .also {
-                    it.setType(CollisionUpdate.Type.REMOVE)
-                    it.putObject(world.definitions, entity as GameObject)
-                }
-                .build()
+            val builder = CollisionUpdate.Builder()
+            builder.setType(CollisionUpdate.Type.REMOVE)
+            builder.putObject(world.definitions, entity as GameObject)
+            val update = builder.build()
             world.collision.applyUpdate(update)
             world.collisionFlags.applyUpdate(update)
         }
