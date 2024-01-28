@@ -18,6 +18,7 @@ import gg.rsmod.game.plugin.Plugin
 import gg.rsmod.util.AabbUtil
 import org.rsmod.game.pathfinder.PathFinder
 import org.rsmod.game.pathfinder.collision.CollisionStrategies
+import org.rsmod.game.pathfinder.collision.raycast
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -195,7 +196,7 @@ object PawnPathAction {
                     bordering(sourceTile, sourceSize, targetTile, interactionRange)
                 } else {
                     overlap(sourceTile, sourceSize, targetTile, interactionRange) && (interactionRange == 0 || !sourceTile.sameAs(targetTile))
-                            && pawn.world.collision.raycast(sourceTile, targetTile, lineOfSight)
+                            && pawn.world.collisionFlags.raycast(sourceTile, targetTile, lineOfSight)
                 }
             }
         }

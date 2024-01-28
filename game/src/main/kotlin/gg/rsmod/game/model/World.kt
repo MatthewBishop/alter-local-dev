@@ -39,6 +39,8 @@ import mu.KLogging
 import net.runelite.cache.IndexType
 import net.runelite.cache.fs.Store
 import org.rsmod.game.pathfinder.collision.CollisionFlagMap
+import org.rsmod.game.pathfinder.collision.applyUpdate
+import org.rsmod.game.pathfinder.collision.isClipped
 import java.io.File
 import java.security.SecureRandom
 import java.util.ArrayList
@@ -534,7 +536,7 @@ class World(val gameContext: GameContext, val devContext: DevContext) {
                 tiles.add(centre.transform(x, z))
             }
         }
-        val filtered = tiles.filter { tile -> !collision.isClipped(tile) }
+        val filtered = tiles.filter { tile -> !collisionFlags.isClipped(tile) }
         if (filtered.isNotEmpty()) {
             return filtered.random()
         }
