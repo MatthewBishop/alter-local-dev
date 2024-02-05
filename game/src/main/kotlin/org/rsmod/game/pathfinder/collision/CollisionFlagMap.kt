@@ -98,9 +98,9 @@ public class CollisionFlagMap(
         private const val TOTAL_ZONE_COUNT: Int = 2048 * 2048 * 4
         private const val ZONE_TILE_COUNT: Int = 8 * 8
 
-        private fun tileIndex(x: Int, z: Int): Int = (x and 0x7) or ((z and 0x7) shl 3)
+        fun tileIndex(x: Int, z: Int): Int = (x and 0x7) or ((z and 0x7) shl 3)
 
-        private fun zoneIndex(x: Int, z: Int, level: Int): Int = ((x shr 3) and 0x7FF) or
+        fun zoneIndex(x: Int, z: Int, level: Int): Int = ((x shr 3) and 0x7FF) or
             (((z shr 3) and 0x7FF) shl 11) or ((level and 0x3) shl 22)
     }
 }

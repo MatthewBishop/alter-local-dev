@@ -3,8 +3,7 @@ package gg.rsmod.game.model
 import gg.rsmod.game.model.MovementQueue.Step
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.sync.block.UpdateBlockType
-import org.rsmod.game.pathfinder.LineValidator
-import org.rsmod.game.pathfinder.StepValidator
+import org.rsmod.game.pathfinder.collision.canTraverse
 import java.util.ArrayDeque
 import java.util.Deque
 import kotlin.math.abs
@@ -43,7 +42,7 @@ class MovementQueue(val pawn: Pawn) {
     }
 
     fun cycle() {
-        val collision = pawn.world.collision
+        val collision = pawn.world.collisionFlags
 
         var next = steps.poll()
         if (next != null) {
@@ -54,7 +53,7 @@ class MovementQueue(val pawn: Pawn) {
 
             walkDirection = Direction.between(tile, next.tile)
 
-            if (walkDirection != Direction.NONE && (!next.detectCollision || collision.canTraverse(tile, walkDirection, projectile = false))) {
+            if (walkDirection != Direction.NONE && (!next.detectCollision || collision.canTraverse(tile, walkDirection))) {
                 tile = Tile(next.tile)
                 pawn.lastFacingDirection = walkDirection
 
@@ -68,7 +67,7 @@ class MovementQueue(val pawn: Pawn) {
                     if (next != null) {
                         runDirection = Direction.between(tile, next.tile)
 
-                        if (!next.detectCollision || collision.canTraverse(tile, runDirection, projectile = false)) {
+                        if (!next.detectCollision || collision.canTraverse(tile, runDirection)) {
                             tile = Tile(next.tile)
                             pawn.lastFacingDirection = runDirection
                         } else {
@@ -123,12 +122,5 @@ class MovementQueue(val pawn: Pawn) {
         NORMAL,
         FORCED_WALK,
         FORCED_RUN
-    }
-
-    private val stepValidator: StepValidator = StepValidator(world.collisionFlags)
-    private val lineValidator: LineValidator = LineValidator(world.collisionFlags)
-
-    fun canStep(x: Int, y: Int): Boolean {
-        return stepValidator.canTravel(pawn, x, y)
     }
 }
