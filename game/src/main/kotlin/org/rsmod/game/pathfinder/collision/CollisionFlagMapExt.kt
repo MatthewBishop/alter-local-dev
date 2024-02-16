@@ -11,6 +11,7 @@ import org.rsmod.game.pathfinder.flag.CollisionFlag
 
 /**
  * Interop between existing RSMod1 collision logic and RSMod2 [CollisionFlagMap] logic.
+ * Created by Advo on 1/19/2024
  */
 fun CollisionFlagMap.applyUpdate(update: CollisionUpdate) {
     val map = update.flags
@@ -43,9 +44,6 @@ fun CollisionFlagMap.applyUpdate(update: CollisionUpdate) {
 }
 
 fun CollisionFlagMap.isClipped(tile: Tile): Boolean {
-    //chunks.get(tile, createChunksIfNeeded)!!.isClipped(tile)
-//    fun isClipped(x: Int, y: Int): Boolean = CollisionFlag.values.any { hasFlag(x, y, it) }
-    //    fun hasFlag(x: Int, y: Int, flag: CollisionFlag): Boolean = (get(x, y) and flag.getBitAsShort().toInt()) != 0
     val zoneIndex = zoneIndex(tile.x, tile.z, tile.height)
     val tileIndex = tileIndex(tile.x, tile.z)
     return flags[zoneIndex]?.get(tileIndex) != 0
@@ -163,4 +161,3 @@ private fun tileIndex(x: Int, z: Int): Int = (x and 0x7) or ((z and 0x7) shl 3)
 
 private fun zoneIndex(x: Int, z: Int, level: Int): Int = ((x shr 3) and 0x7FF) or
         (((z shr 3) and 0x7FF) shl 11) or ((level and 0x3) shl 22)
-
