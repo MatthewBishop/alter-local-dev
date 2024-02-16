@@ -1,7 +1,5 @@
 package gg.rsmod.plugins.content.mechanics.doors
 
-import gg.rsmod.game.model.collision.ObjectType
-
 val STICK_STATE = AttributeKey<DoorStickState>()
 
 val CHANGES_BEFORE_STICK_TAG = "opens_before_stick"
@@ -42,7 +40,7 @@ on_world_init {
             on_obj_option(obj = door.opened, option = "close") {
                 val obj = player.getInteractingGameObj()
                 if (!is_stuck(world, obj)) {
-                    val newDoor = world.closeDoor(obj, closed = door.closed, invertTransform = obj.type == ObjectType.DIAGONAL_WALL.value)
+                    val newDoor = world.closeDoor(obj, closed = door.closed, invertTransform = obj.type == 9)
                     copy_stick_vars(obj, newDoor)
                     add_stick_var(world, newDoor)
                     player.playSound(Sounds.CLOSE_DOOR_SFX)
@@ -54,7 +52,7 @@ on_world_init {
 
             on_obj_option(obj = door.closed, option = "open") {
                 val obj = player.getInteractingGameObj()
-                val newDoor = world.openDoor(obj, opened = door.opened, invertTransform = obj.type == ObjectType.DIAGONAL_WALL.value)
+                val newDoor = world.openDoor(obj, opened = door.opened, invertTransform = obj.type == 9)
                 copy_stick_vars(obj, newDoor)
                 add_stick_var(world, newDoor)
                 player.playSound(Sounds.OPEN_DOOR_SFX)

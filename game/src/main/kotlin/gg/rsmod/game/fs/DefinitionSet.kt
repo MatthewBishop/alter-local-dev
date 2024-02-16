@@ -217,9 +217,7 @@ class DefinitionSet {
             blockedTileBuilder.putTile(tile, false, *Direction.NESW)
         }
         val update = blockedTileBuilder.build();
-        world.collision.applyUpdate(update)
         world.collisionFlags.applyUpdate(update)
-//TODO ADVO FIX PLZ
 
         if (xteaService == null) {
             /*

@@ -8,7 +8,6 @@ import gg.rsmod.game.model.entity.Entity
 import gg.rsmod.game.model.entity.Npc
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.model.entity.Player
-import gg.rsmod.game.model.path.PathRequest
 import gg.rsmod.game.model.queue.QueueTask
 import gg.rsmod.game.model.queue.TaskPriority
 import gg.rsmod.game.model.timer.FROZEN_TIMER

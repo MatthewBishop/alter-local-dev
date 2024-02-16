@@ -2,13 +2,11 @@ package org.rsmod.game.pathfinder.collision
 
 import gg.rsmod.game.model.Direction
 import gg.rsmod.game.model.Tile
-import gg.rsmod.game.model.collision.CollisionFlag
-import gg.rsmod.game.model.collision.CollisionFlag.Companion.pawnFlags
-import gg.rsmod.game.model.collision.CollisionFlag.Companion.projectileFlags
 import gg.rsmod.game.model.collision.CollisionUpdate
 import gg.rsmod.game.model.region.Chunk
 import org.rsmod.game.pathfinder.LineValidator
 import org.rsmod.game.pathfinder.StepValidator
+import org.rsmod.game.pathfinder.flag.CollisionFlag
 import kotlin.experimental.or
 
 /**
@@ -35,9 +33,9 @@ fun CollisionFlagMap.applyUpdate(update: CollisionUpdate) {
                 absoluteZ = tile.z,
                 level = tile.height,
                 mask = if (flag.impenetrable) {
-                    projectiles[orientation].getBitAsShort() or pawns[orientation].getBitAsShort()
+                    projectiles[orientation] or pawns[orientation]
                 } else {
-                    pawns[orientation].getBitAsShort()
+                    pawns[orientation]
                 }.toInt(),
             )
         }
@@ -134,3 +132,33 @@ fun CollisionFlagMap.canTraverse(
         collision = CollisionStrategies.Normal
     )
 }
+
+private val pawnFlags = arrayOf(
+    CollisionFlag.WALL_NORTH_WEST,
+    CollisionFlag.WALL_NORTH,
+    CollisionFlag.WALL_NORTH_EAST,
+    CollisionFlag.WALL_WEST,
+    CollisionFlag.WALL_EAST,
+    CollisionFlag.WALL_SOUTH_WEST,
+    CollisionFlag.WALL_SOUTH,
+    CollisionFlag.WALL_SOUTH_EAST
+)
+
+private val projectileFlags = arrayOf(
+    CollisionFlag.WALL_NORTH_WEST_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_NORTH_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_NORTH_EAST_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_WEST_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_EAST_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_SOUTH_WEST_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_SOUTH_PROJECTILE_BLOCKER,
+    CollisionFlag.WALL_SOUTH_EAST_PROJECTILE_BLOCKER
+)
+
+fun getFlags(projectiles: Boolean): Array<Int> = if (projectiles) projectileFlags() else pawnFlags()
+
+fun pawnFlags() = pawnFlags
+
+fun projectileFlags() = projectileFlags
+
+
