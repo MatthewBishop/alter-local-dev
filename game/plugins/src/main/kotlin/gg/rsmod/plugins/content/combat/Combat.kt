@@ -21,6 +21,8 @@ import gg.rsmod.plugins.content.combat.strategy.MeleeCombatStrategy
 import gg.rsmod.plugins.content.combat.strategy.RangedCombatStrategy
 import gg.rsmod.plugins.content.combat.strategy.magic.CombatSpell
 import gg.rsmod.plugins.content.inter.attack.AttackTab
+import org.rsmod.game.pathfinder.collision.raycast
+import org.rsmod.game.pathfinder.collision.raycastTiles
 import java.lang.ref.WeakReference
 
 /**
@@ -104,7 +106,7 @@ object Combat {
         val start = pawn.tile
         val end = target.tile
 
-        return start.isWithinRadius(end, distance) && world.collision.raycast(start, end, projectile = projectile)
+        return start.isWithinRadius(end, distance) && world.collisionFlags.raycast(start, end, projectile = projectile)
     }
 
     suspend fun moveToAttackRange(it: QueueTask, pawn: Pawn, target: Pawn, distance: Int, projectile: Boolean): Boolean {
@@ -117,13 +119,13 @@ object Combat {
 
         val touching = if (distance > 1) areOverlapping(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
                         else areBordering(start.x, start.z, srcSize, srcSize, end.x, end.z, dstSize, dstSize)
-        val withinRange = touching && world.collision.raycast(start, end, projectile = projectile)
+        val withinRange = touching && world.collisionFlags.raycast(start, end, projectile = projectile)
         return withinRange || PawnPathAction.walkTo(it, pawn, target, interactionRange = distance, lineOfSight = false)
     }
 
     fun getProjectileLifespan(source: Pawn, target: Tile, type: ProjectileType): Int = when (type) {
         ProjectileType.MAGIC -> {
-            val fastPath = source.world.collision.raycastTiles(source.tile, target)
+            val fastPath = source.world.collisionFlags.raycastTiles(source.tile, target)
             5 + (fastPath * 10)
         }
         else -> {

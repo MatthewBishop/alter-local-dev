@@ -22,6 +22,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kcoroutineVersion"
 
+    // https://mvnrepository.com/artifact/org.rsmod/rsmod-pathfinder
+    implementation("org.rsmod:rsmod-pathfinder:4.2.1")
+
     implementation "org.reflections:reflections:$reflectionsVersion"
     implementation "commons-io:commons-io:$commonsIoVersion"
 

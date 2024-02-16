@@ -28,7 +28,7 @@ on_timer(SEARCH_FOR_PATH_TIMER) {
             /*
              * Only walk to destination if the chunk has previously been created.
              */
-            if (world.collision.chunks.get(dest, createIfNeeded = false) != null) {
+            if (world.collisionFlags.isZoneAllocated(dest.x, dest.z, dest.height)) {
                 npc.walkTo(dest)
             }
         }

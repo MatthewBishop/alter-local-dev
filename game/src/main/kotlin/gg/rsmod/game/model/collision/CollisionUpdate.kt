@@ -75,30 +75,30 @@ class CollisionUpdate private constructor(val type: Type, val flags: Object2Obje
                 length = def.width
             }
 
-            if (type == ObjectType.FLOOR_DECORATION.value) {
+            if (type == 22) {
                 if (def.interactive && def.solid) {
                     putTile(Tile(x, z, height), impenetrable, *Direction.NESW)
                 }
-            } else if (type >= ObjectType.DIAGONAL_WALL.value && type < ObjectType.FLOOR_DECORATION.value) {
+            } else if (type >= 9 && type < 22) {
                 for (dx in 0 until width) {
                     for (dz in 0 until length) {
                         putTile(Tile(x + dx, z + dz, height), impenetrable, *Direction.NESW)
                     }
                 }
-            } else if (type == ObjectType.LENGTHWISE_WALL.value) {
+            } else if (type == 0) {
                 putWall(tile, impenetrable, Direction.WNES[orientation])
-            } else if (type == ObjectType.TRIANGULAR_CORNER.value || type == ObjectType.RECTANGULAR_CORNER.value) {
+            } else if (type == 1 || type == 3) {
                 putWall(tile, impenetrable, Direction.WNES_DIAGONAL[orientation])
-            } else if (type == ObjectType.WALL_CORNER.value) {
+            } else if (type == 2) {
                 putLargeCornerWall(tile, impenetrable, Direction.WNES_DIAGONAL[orientation])
             }
         }
 
         private fun unwalkable(def: ObjectDef, type: Int): Boolean {
-            val isSolidFloorDecoration = type == ObjectType.FLOOR_DECORATION.value && def.interactive
-            val isRoof = type > ObjectType.DIAGONAL_INTERACTABLE.value && type < ObjectType.FLOOR_DECORATION.value && def.solid
-            val isWall = (type >= ObjectType.LENGTHWISE_WALL.value && type <= ObjectType.RECTANGULAR_CORNER.value || type == ObjectType.DIAGONAL_WALL.value) && def.solid
-            val isSolidInteractable = (type == ObjectType.DIAGONAL_INTERACTABLE.value || type == ObjectType.INTERACTABLE.value) && def.solid
+            val isSolidFloorDecoration = type == 22 && def.interactive
+            val isRoof = type > 11 && type < 22 && def.solid
+            val isWall = (type >= 0 && type <= 3 || type == 9) && def.solid
+            val isSolidInteractable = (type == 11 || type == 10) && def.solid
 
             return isWall || isRoof || isSolidInteractable || isSolidFloorDecoration
         }

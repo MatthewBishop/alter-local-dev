@@ -1,8 +1,6 @@
 package gg.rsmod.game.model
 
 import com.google.common.base.MoreObjects
-import gg.rsmod.game.model.collision.CollisionFlag
-import gg.rsmod.game.model.entity.GroundItem
 import gg.rsmod.game.model.region.Chunk
 import gg.rsmod.game.model.region.ChunkCoords
 
