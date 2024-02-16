@@ -215,12 +215,12 @@ object PawnPathAction {
         val tileQueue: Queue<Tile> = ArrayDeque(newRoute.waypoints.map { Tile(it.x, it.z, it.level) })
         pawn.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = false)
 
-        while (!pawn.tile.sameAs(tileQueue.last())) {
-            if (!targetTile.sameAs(target.tile)) {
-                return walkTo(it, pawn, target, interactionRange, lineOfSight)
-            }
-            it.wait(1)
-        }
+//        while (!pawn.tile.sameAs(tileQueue.last())) {
+//            if (!targetTile.sameAs(target.tile)) {
+//                return walkTo(it, pawn, target, interactionRange, lineOfSight)
+//            }
+//            it.wait(1)
+//        }
 
 //        val builder = PathRequest.Builder()
 //                .setPoints(sourceTile, targetTile)
