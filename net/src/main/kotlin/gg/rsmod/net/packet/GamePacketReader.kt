@@ -204,6 +204,7 @@ class GamePacketReader(packet: GamePacket) {
                     longValue = longValue or (buffer.readByte().toInt() and 0xFF shl 24).toLong()
                     longValue = longValue or (buffer.readByte().toInt() and 0xFF shl 16).toLong()
                 }
+                else -> throw IllegalStateException("Unknown $type")
             }
         } else if (order == DataOrder.INVERSE_MIDDLE) {
             if (transformation != DataTransformation.NONE) {
@@ -225,6 +226,7 @@ class GamePacketReader(packet: GamePacket) {
                     longValue = longValue or (buffer.readByte().toInt() and 0xFF).toLong()
                     longValue = longValue or (buffer.readByte().toInt() and 0xFF shl 8).toLong()
                 }
+                else -> throw IllegalStateException("Unknown $type")
             }
         } else {
             throw IllegalArgumentException("Unknown order.")

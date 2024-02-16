@@ -12,7 +12,7 @@ on_command("getitems", Privilege.DEV_POWER) {
 
         for (i in 0 until world.definitions.getCount(ItemDef::class.java)) {
             val def = world.definitions.get(ItemDef::class.java, Item(i).toUnnoted(world.definitions).id)
-            val items_name = def.name?.toLowerCase()
+            val items_name = def.name.toLowerCase()
             val items_examine = def.examine?.toLowerCase()
             if (!def.isPlaceholder && items_name != "null") {
                 if (items_name.contains(item_name, ignoreCase = true)) { // <- Why doesnt this one need a null check? D:
