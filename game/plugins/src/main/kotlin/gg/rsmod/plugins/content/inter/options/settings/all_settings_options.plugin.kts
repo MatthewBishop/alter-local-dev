@@ -38,6 +38,7 @@ bind_all_setting(Settings.CLICK) {
         SettingType.KEYBIND -> {
             dropdown(player, setting)
         }
+        else -> throw IllegalStateException("Unknown $setting?.getType()")
     }
 }
 
