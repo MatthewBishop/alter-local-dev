@@ -141,12 +141,6 @@ abstract class Pawn(val world: World) : Entity() {
     var invisible = false
 
     /**
-     * The [FutureRoute] for the pawn, if any.
-     * @see createPathFindingStrategy
-     */
-    private var futureRoute: FutureRoute? = null
-
-    /**
      * Handles logic before any synchronization tasks are executed.
      */
     abstract fun cycle()
@@ -195,7 +189,7 @@ abstract class Pawn(val world: World) : Entity() {
         addBlock(UpdateBlockType.APPEARANCE)
     }
 
-    fun hasMoveDestination(): Boolean = futureRoute != null || movementQueue.hasDestination()
+    fun hasMoveDestination(): Boolean = movementQueue.hasDestination()
 
     fun stopMovement() {
         movementQueue.clear()
@@ -343,17 +337,6 @@ abstract class Pawn(val world: World) : Entity() {
     }
 
     /**
-     * Handle the [futureRoute] if necessary.
-     */
-    fun handleFutureRoute() {
-        if (futureRoute?.completed == true && futureRoute?.strategy?.cancel == false) {
-            val futureRoute = futureRoute!!
-            walkPath(futureRoute.route.path, futureRoute.stepType, futureRoute.detectCollision)
-            this.futureRoute = null
-        }
-    }
-
-    /**
      * Walk to all the tiles specified in our [path] queue, using [stepType] as
      * the [MovementQueue.StepType].
      */
@@ -427,27 +410,11 @@ abstract class Pawn(val world: World) : Entity() {
             return
         }
 
-        val multiThread = world.multiThreadPathFinding
         val request = PathRequest.createWalkRequest(this, x, z, projectile = false, detectCollision = detectCollision)
-        val strategy = createPathFindingStrategy(copyChunks = multiThread)
+        val strategy = createPathFindingStrategy(copyChunks = false)
 
-        /*
-         * When using multi-thread path-finding, the [PathRequest.createWalkRequest]
-         * must have the [tile] in sync with the game-thread, so we need to make sure
-         * that in this cycle, the pawn's [tile] does not change. The easiest way to
-         * do this is by clearing their movement queue. Though it can cause weird
-         */
-        if (multiThread) {
-            movementQueue.clear()
-        }
-        futureRoute?.strategy?.cancel = true
-
-        if (multiThread) {
-            futureRoute = FutureRoute.of(strategy, request, stepType, detectCollision)
-        } else {
-            val route = strategy.calculateRoute(request)
-            walkPath(route.path, stepType, detectCollision)
-        }
+        val route = strategy.calculateRoute(request)
+        walkPath(route.path, stepType, detectCollision)
     }
 
     suspend fun walkTo(it: QueueTask, tile: Tile, stepType: MovementQueue.StepType = MovementQueue.StepType.NORMAL, detectCollision: Boolean = true) = walkTo(it, tile.x, tile.z, stepType, detectCollision)
@@ -459,20 +426,10 @@ abstract class Pawn(val world: World) : Entity() {
         if (tile.x == x && tile.z == z) {
             return Route(EMPTY_TILE_DEQUE, success = true, tail = Tile(tile))
         }
-        val multiThread = world.multiThreadPathFinding
         val request = PathRequest.createWalkRequest(this, x, z, projectile = false, detectCollision = detectCollision)
-        val strategy = createPathFindingStrategy(copyChunks = multiThread)
+        val strategy = createPathFindingStrategy(copyChunks = false)
 
         movementQueue.clear()
-        futureRoute?.strategy?.cancel = true
-
-        if (multiThread) {
-            futureRoute = FutureRoute.of(strategy, request, stepType, detectCollision)
-            while (!futureRoute!!.completed) {
-                it.wait(1)
-            }
-            return futureRoute!!.route
-        }
 
         val route = strategy.calculateRoute(request)
         walkPath(route.path, stepType, detectCollision)
