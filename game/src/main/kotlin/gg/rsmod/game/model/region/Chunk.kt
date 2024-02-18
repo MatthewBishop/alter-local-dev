@@ -10,7 +10,8 @@ import gg.rsmod.game.service.GameService
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import org.rsmod.game.pathfinder.collision.applyUpdate
+import org.rsmod.game.pathfinder.collision.pawnFlags
+import org.rsmod.game.pathfinder.collision.projectileFlags
 
 /**
  * Represents an 8x8 tile in the game map.
@@ -58,7 +59,32 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
             builder.setType(CollisionUpdate.Type.ADD)
             builder.putObject(world.definitions, entity as GameObject)
             val update = builder.build()
-            world.collisionFlags.applyUpdate(update)
+            val map = update.flags
+            for (entry in map.entries) {
+                val tile = entry.key
+
+                val pawns = pawnFlags()
+                val projectiles = projectileFlags()
+
+                for (flag in entry.value) {
+                    val direction = flag.direction
+                    if (direction == Direction.NONE) {
+                        continue
+                    }
+
+                    val orientation = direction.orientationValue
+                    world.collisionFlags.add(
+                        absoluteX = tile.x,
+                        absoluteZ = tile.z,
+                        level = tile.height,
+                        mask = if (flag.impenetrable) {
+                            projectiles[orientation] or pawns[orientation]
+                        } else {
+                            pawns[orientation]
+                        }.toInt(),
+                    )
+                }
+            }
         }
 
         /*
@@ -114,7 +140,33 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
             builder.setType(CollisionUpdate.Type.REMOVE)
             builder.putObject(world.definitions, entity as GameObject)
             val update = builder.build()
-            world.collisionFlags.applyUpdate(update)
+
+            val map = update.flags
+            for (entry in map.entries) {
+                val tile = entry.key
+
+                val pawns = pawnFlags()
+                val projectiles = projectileFlags()
+
+                for (flag in entry.value) {
+                    val direction = flag.direction
+                    if (direction == Direction.NONE) {
+                        continue
+                    }
+
+                    val orientation = direction.orientationValue
+                    world.collisionFlags.add(
+                        absoluteX = tile.x,
+                        absoluteZ = tile.z,
+                        level = tile.height,
+                        mask = if (flag.impenetrable) {
+                            projectiles[orientation] or pawns[orientation]
+                        } else {
+                            pawns[orientation]
+                        }.toInt(),
+                    )
+                }
+            }
         }
 
         entities[tile]?.remove(entity)

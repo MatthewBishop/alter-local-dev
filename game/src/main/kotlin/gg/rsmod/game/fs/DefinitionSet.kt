@@ -18,7 +18,9 @@ import net.runelite.cache.IndexType
 import net.runelite.cache.definitions.loaders.LocationsLoader
 import net.runelite.cache.definitions.loaders.MapLoader
 import net.runelite.cache.fs.Store
-import org.rsmod.game.pathfinder.collision.applyUpdate
+import org.rsmod.game.pathfinder.collision.pawnFlags
+import org.rsmod.game.pathfinder.collision.projectileFlags
+import org.rsmod.game.pathfinder.flag.CollisionFlag
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -210,14 +212,14 @@ class DefinitionSet {
         /*
          * Apply the blocked tiles to the collision detection.
          */
-        val blockedTileBuilder = CollisionUpdate.Builder()
-        blockedTileBuilder.setType(CollisionUpdate.Type.ADD)
         blocked.forEach { tile ->
             world.chunks.getOrCreate(tile).blockedTiles.add(tile)
-            blockedTileBuilder.putTile(tile, false, *Direction.NESW)
+            world.collisionFlags.add(
+                absoluteX = tile.x,
+                absoluteZ = tile.z,
+                level = tile.height,
+                mask = CollisionFlag.FLOOR or CollisionFlag.FLOOR_DECORATION)
         }
-        val update = blockedTileBuilder.build();
-        world.collisionFlags.applyUpdate(update)
 
         if (xteaService == null) {
             /*

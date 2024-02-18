@@ -39,6 +39,13 @@ class CollisionUpdate private constructor(val type: Type, val flags: Object2Obje
             this.flags[tile] = flags
         }
 
+        fun putTile(tile: Tile, vararg directions: Direction) {
+            check(directions.isNotEmpty()) { "Directions must not be empty." }
+            val flags = flags[tile] ?: ObjectArrayList<DirectionFlag>()
+            directions.forEach { dir -> flags.add(DirectionFlag(dir, false)) }
+            this.flags[tile] = flags
+        }
+
         private fun putWall(tile: Tile, impenetrable: Boolean, orientation: Direction) {
             putTile(tile, impenetrable, orientation)
             putTile(tile.step(orientation), impenetrable, orientation.getOpposite())

@@ -9,40 +9,6 @@ import org.rsmod.game.pathfinder.collision.CollisionFlagMap
 import org.rsmod.game.pathfinder.collision.CollisionStrategies
 import org.rsmod.game.pathfinder.flag.CollisionFlag
 
-/**
- * Interop between existing RSMod1 collision logic and RSMod2 [CollisionFlagMap] logic.
- * Created by Advo on 1/19/2024
- */
-fun CollisionFlagMap.applyUpdate(update: CollisionUpdate) {
-    val map = update.flags
-
-    for (entry in map.entries) {
-        val tile = entry.key
-
-        val pawns = pawnFlags()
-        val projectiles = projectileFlags()
-
-        for (flag in entry.value) {
-            val direction = flag.direction
-            if (direction == Direction.NONE) {
-                continue
-            }
-
-            val orientation = direction.orientationValue
-            add(
-                absoluteX = tile.x,
-                absoluteZ = tile.z,
-                level = tile.height,
-                mask = if (flag.impenetrable) {
-                    projectiles[orientation] or pawns[orientation]
-                } else {
-                    pawns[orientation]
-                }.toInt(),
-            )
-        }
-    }
-}
-
 fun CollisionFlagMap.isClipped(tile: Tile): Boolean {
     val zoneIndex = zoneIndex(tile.x, tile.z, tile.height)
     val tileIndex = tileIndex(tile.x, tile.z)
@@ -153,9 +119,9 @@ private val projectileFlags = arrayOf(
     CollisionFlag.WALL_SOUTH_EAST_PROJECTILE_BLOCKER
 )
 
-fun pawnFlags() = pawnFlags
+public fun pawnFlags() = pawnFlags
 
-fun projectileFlags() = projectileFlags
+public fun projectileFlags() = projectileFlags
 
 private fun tileIndex(x: Int, z: Int): Int = (x and 0x7) or ((z and 0x7) shl 3)
 
