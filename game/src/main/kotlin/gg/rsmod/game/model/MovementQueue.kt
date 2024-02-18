@@ -3,7 +3,6 @@ package gg.rsmod.game.model
 import gg.rsmod.game.model.MovementQueue.Step
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.sync.block.UpdateBlockType
-import org.rsmod.game.pathfinder.collision.canTraverse
 import java.util.ArrayDeque
 import java.util.Deque
 import kotlin.math.abs
@@ -42,7 +41,7 @@ class MovementQueue(val pawn: Pawn) {
     }
 
     fun cycle() {
-        val collision = pawn.world.collisionFlags
+        val collision = pawn.world.collision
 
         var next = steps.poll()
         if (next != null) {
@@ -53,7 +52,7 @@ class MovementQueue(val pawn: Pawn) {
 
             walkDirection = Direction.between(tile, next.tile)
 
-            if (walkDirection != Direction.NONE && (!next.detectCollision || collision.canTraverse(tile, walkDirection))) {
+            if (walkDirection != Direction.NONE && (!next.detectCollision || pawn.world.canTraverse(tile, walkDirection))) {
                 tile = Tile(next.tile)
                 pawn.lastFacingDirection = walkDirection
 
@@ -67,7 +66,7 @@ class MovementQueue(val pawn: Pawn) {
                     if (next != null) {
                         runDirection = Direction.between(tile, next.tile)
 
-                        if (!next.detectCollision || collision.canTraverse(tile, runDirection)) {
+                        if (!next.detectCollision || pawn.world.canTraverse(tile, runDirection)) {
                             tile = Tile(next.tile)
                             pawn.lastFacingDirection = runDirection
                         } else {

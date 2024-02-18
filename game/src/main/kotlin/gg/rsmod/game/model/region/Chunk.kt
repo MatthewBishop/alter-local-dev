@@ -3,15 +3,13 @@ package gg.rsmod.game.model.region
 import gg.rsmod.game.message.impl.UpdateZonePartialEnclosedMessage
 import gg.rsmod.game.message.impl.UpdateZonePartialFollowsMessage
 import gg.rsmod.game.model.*
-import gg.rsmod.game.model.collision.CollisionUpdate
 import gg.rsmod.game.model.entity.*
 import gg.rsmod.game.model.region.update.*
 import gg.rsmod.game.service.GameService
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import org.rsmod.game.pathfinder.collision.pawnFlags
-import org.rsmod.game.pathfinder.collision.projectileFlags
+import gg.rsmod.game.model.collision.addObjectCollision
+import gg.rsmod.game.model.collision.removeObjectCollision
 
 /**
  * Represents an 8x8 tile in the game map.
@@ -19,8 +17,6 @@ import org.rsmod.game.pathfinder.collision.projectileFlags
  * @author Tom <rspsmods@gmail.com>
  */
 class Chunk(val coords: ChunkCoords, val heights: Int) {
-
-    internal val blockedTiles = ObjectOpenHashSet<Tile>()
 
     /**
      * The [Entity]s that are currently registered to the [Tile] key. This is
@@ -55,36 +51,7 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
          * Objects will affect the collision map.
          */
         if (entity.entityType.isObject) {
-            val builder = CollisionUpdate.Builder()
-            builder.setType(CollisionUpdate.Type.ADD)
-            builder.putObject(world.definitions, entity as GameObject)
-            val update = builder.build()
-            val map = update.flags
-            for (entry in map.entries) {
-                val tile = entry.key
-
-                val pawns = pawnFlags()
-                val projectiles = projectileFlags()
-
-                for (flag in entry.value) {
-                    val direction = flag.direction
-                    if (direction == Direction.NONE) {
-                        continue
-                    }
-
-                    val orientation = direction.orientationValue
-                    world.collisionFlags.add(
-                        absoluteX = tile.x,
-                        absoluteZ = tile.z,
-                        level = tile.height,
-                        mask = if (flag.impenetrable) {
-                            projectiles[orientation] or pawns[orientation]
-                        } else {
-                            pawns[orientation]
-                        }.toInt(),
-                    )
-                }
-            }
+            world.collision.addObjectCollision(world.definitions, entity as GameObject)
         }
 
         /*
@@ -136,37 +103,7 @@ class Chunk(val coords: ChunkCoords, val heights: Int) {
          * collision map.
          */
         if (entity.entityType.isObject) {
-            val builder = CollisionUpdate.Builder()
-            builder.setType(CollisionUpdate.Type.REMOVE)
-            builder.putObject(world.definitions, entity as GameObject)
-            val update = builder.build()
-
-            val map = update.flags
-            for (entry in map.entries) {
-                val tile = entry.key
-
-                val pawns = pawnFlags()
-                val projectiles = projectileFlags()
-
-                for (flag in entry.value) {
-                    val direction = flag.direction
-                    if (direction == Direction.NONE) {
-                        continue
-                    }
-
-                    val orientation = direction.orientationValue
-                    world.collisionFlags.add(
-                        absoluteX = tile.x,
-                        absoluteZ = tile.z,
-                        level = tile.height,
-                        mask = if (flag.impenetrable) {
-                            projectiles[orientation] or pawns[orientation]
-                        } else {
-                            pawns[orientation]
-                        }.toInt(),
-                    )
-                }
-            }
+            world.collision.removeObjectCollision(world.definitions, entity as GameObject)
         }
 
         entities[tile]?.remove(entity)

@@ -1,11 +1,9 @@
 package gg.rsmod.game.fs
 
 import gg.rsmod.game.fs.def.*
-import gg.rsmod.game.model.Direction
 import gg.rsmod.game.model.Tile
 import gg.rsmod.game.model.World
-import gg.rsmod.game.model.collision.CollisionManager
-import gg.rsmod.game.model.collision.CollisionUpdate
+import gg.rsmod.game.model.collision.TileFlags
 import gg.rsmod.game.model.entity.StaticObject
 import gg.rsmod.game.model.region.ChunkSet
 import gg.rsmod.game.service.xtea.XteaKeyService
@@ -18,8 +16,6 @@ import net.runelite.cache.IndexType
 import net.runelite.cache.definitions.loaders.LocationsLoader
 import net.runelite.cache.definitions.loaders.MapLoader
 import net.runelite.cache.fs.Store
-import org.rsmod.game.pathfinder.collision.pawnFlags
-import org.rsmod.game.pathfinder.collision.projectileFlags
 import org.rsmod.game.pathfinder.flag.CollisionFlag
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -185,19 +181,22 @@ class DefinitionSet {
         val cacheRegion = net.runelite.cache.region.Region(id)
         cacheRegion.loadTerrain(mapDefinition)
 
+
         val blocked = hashSetOf<Tile>()
         val bridges = hashSetOf<Tile>()
         for (height in 0 until 4) {
             for (lx in 0 until 64) {
                 for (lz in 0 until 64) {
                     val tileSetting = cacheRegion.getTileSetting(height, lx, lz)
-                    val tile = Tile(cacheRegion.baseX + lx, cacheRegion.baseY + lz, height)
 
-                    if ((tileSetting.toInt() and CollisionManager.BLOCKED_TILE) == CollisionManager.BLOCKED_TILE) {
+                    val tile = Tile(cacheRegion.baseX + lx, cacheRegion.baseY + lz, height)
+                    world.chunks.getOrCreate(tile)
+
+                    if ((tileSetting.toInt() and TileFlags.BLOCKED_TILE) == TileFlags.BLOCKED_TILE) {//0x1
                         blocked.add(tile)
                     }
 
-                    if ((tileSetting.toInt() and CollisionManager.BRIDGE_TILE) == CollisionManager.BRIDGE_TILE) {
+                    if ((tileSetting.toInt() and TileFlags.BRIDGE_TILE) == TileFlags.BRIDGE_TILE) {//0x2
                         bridges.add(tile)
                         /*
                          * We don't want the bottom of the bridge to be blocked,
@@ -213,8 +212,7 @@ class DefinitionSet {
          * Apply the blocked tiles to the collision detection.
          */
         blocked.forEach { tile ->
-            world.chunks.getOrCreate(tile).blockedTiles.add(tile)
-            world.collisionFlags.add(
+            world.collision.add(
                 absoluteX = tile.x,
                 absoluteZ = tile.z,
                 level = tile.height,

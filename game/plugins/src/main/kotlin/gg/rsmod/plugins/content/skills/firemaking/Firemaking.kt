@@ -13,7 +13,6 @@ import gg.rsmod.plugins.api.cfg.Objs
 import gg.rsmod.plugins.api.ext.filterableMessage
 import gg.rsmod.plugins.api.ext.interpolate
 import gg.rsmod.plugins.api.ext.player
-import org.rsmod.game.pathfinder.collision.canTraverse
 
 object Firemaking {
 
@@ -63,9 +62,9 @@ object Firemaking {
                 player.animate(-1)
 
                 var targetWalkTile: Tile = Tile(player.tile.x-1, player.tile.z, player.tile.height)
-                if(player.world.collisionFlags.canTraverse(targetWalkTile, Direction.WEST)) {
+                if(player.world.canTraverse(targetWalkTile, Direction.WEST)) {
                     targetWalkTile = Tile(player.tile.x+1, player.tile.z, player.tile.height)
-                    if(player.world.collisionFlags.canTraverse(targetWalkTile, Direction.EAST)) {
+                    if(player.world.canTraverse(targetWalkTile, Direction.EAST)) {
                         targetWalkTile = player.tile
                     }
                 }

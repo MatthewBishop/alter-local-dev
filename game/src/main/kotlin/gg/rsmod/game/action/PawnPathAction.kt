@@ -17,7 +17,7 @@ import gg.rsmod.game.plugin.Plugin
 import gg.rsmod.util.AabbUtil
 import org.rsmod.game.pathfinder.PathFinder
 import org.rsmod.game.pathfinder.collision.CollisionStrategies
-import org.rsmod.game.pathfinder.collision.raycast
+import gg.rsmod.game.model.collision.raycast
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -195,12 +195,12 @@ object PawnPathAction {
                     bordering(sourceTile, sourceSize, targetTile, interactionRange)
                 } else {
                     overlap(sourceTile, sourceSize, targetTile, interactionRange) && (interactionRange == 0 || !sourceTile.sameAs(targetTile))
-                            && pawn.world.collisionFlags.raycast(sourceTile, targetTile, lineOfSight)
+                            && pawn.world.collision.raycast(sourceTile, targetTile, lineOfSight)
                 }
             }
         }
 
-        val pathFinder = PathFinder(pawn.world.collisionFlags)
+        val pathFinder = PathFinder(pawn.world.collision)
         val newRoute = pathFinder.findPath(
             level = pawn.tile.height,
             srcX = sourceTile.x,

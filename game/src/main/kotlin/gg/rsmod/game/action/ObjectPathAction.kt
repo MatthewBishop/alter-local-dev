@@ -180,7 +180,7 @@ object ObjectPathAction {
             blockDirections.addAll(blockedWallDirections)
         }
 
-        val pathFinder = PathFinder(pawn.world.collisionFlags)
+        val pathFinder = PathFinder(pawn.world.collision)
         val route = pathFinder.findPath(
             level = pawn.tile.height,
             srcX = pawn.tile.x,

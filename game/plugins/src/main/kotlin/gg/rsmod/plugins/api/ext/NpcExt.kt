@@ -8,7 +8,7 @@ import gg.rsmod.game.model.entity.Npc
 import gg.rsmod.game.model.entity.Pawn
 import gg.rsmod.game.model.entity.Projectile
 import gg.rsmod.plugins.api.NpcSpecies
-import org.rsmod.game.pathfinder.collision.raycastTiles
+import gg.rsmod.game.model.collision.raycastTiles
 
 const val NPC_ATTACK_BONUS_INDEX = 10
 const val NPC_STRENGTH_BONUS_INDEX = 11
@@ -29,7 +29,10 @@ fun Npc.createProjectile(target: Pawn, gfx: Int, startHeight: Int, endHeight: In
             .setGfx(gfx = gfx)
             .setHeights(startHeight = startHeight, endHeight = endHeight)
             .setSlope(angle = angle, steepness = if (steepness == -1) Math.min(255, ((getSize() shr 1) + 1) * 32) else steepness)
-            .setTimes(delay = delay, lifespan = if (lifespan == -1) (delay + (world.collisionFlags.raycastTiles(start, target.getCentreTile()) * 5)) else lifespan)
+            .setTimes(delay = delay, lifespan = if (lifespan == -1) (delay + (raycastTiles(
+                start,
+                target.getCentreTile()
+            ) * 5)) else lifespan)
 
     return builder.build()
 }

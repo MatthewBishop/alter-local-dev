@@ -406,7 +406,7 @@ abstract class Pawn(val world: World) : Entity() {
             return
         }
 
-        val pathFinder = PathFinder(this.world.collisionFlags)
+        val pathFinder = PathFinder(this.world.collision)
         val route = pathFinder.findPath(
             level = this.tile.height,
             srcX = this.tile.x,
@@ -431,7 +431,7 @@ abstract class Pawn(val world: World) : Entity() {
             return Route(EMPTY_TILE_DEQUE, alternative = false, success = true)
         }
 
-        val pathFinder = PathFinder(this.world.collisionFlags)
+        val pathFinder = PathFinder(this.world.collision)
         val route = pathFinder.findPath(
             level = this.tile.height,
             srcX = this.tile.x,

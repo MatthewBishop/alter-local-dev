@@ -28,6 +28,7 @@ class ObjectDef(override val id: Int) : Definition(id) {
     var transforms: Array<Int>? = null
     val params = Int2ObjectOpenHashMap<Any>()
     var examine: String? = null
+    var interactType = 2
 
     fun getRotatedWidth(obj: GameObject): Int = when {
         (obj.rot and 0x1) == 1 -> length
@@ -57,7 +58,10 @@ class ObjectDef(override val id: Int) : Definition(id) {
             }
             14 -> width = buf.readUnsignedByte().toInt()
             15 -> length = buf.readUnsignedByte().toInt()
-            17 -> solid = false // interact type = 0
+            17 -> {
+                interactType = 0
+                solid = false
+            }
             18 -> impenetrable = false
             19 -> interactive = buf.readUnsignedByte().toInt() == 1
             24 -> {
@@ -66,7 +70,7 @@ class ObjectDef(override val id: Int) : Definition(id) {
                     animation = -1
                 }
             }
-            27 -> { } // interact type = 1
+            27 -> interactType = 1
             28 -> buf.readUnsignedByte()
             29 -> buf.readByte()
             in 30 until 35 -> {
