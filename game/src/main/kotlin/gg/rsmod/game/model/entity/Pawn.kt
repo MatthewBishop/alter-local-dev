@@ -8,19 +8,11 @@ import gg.rsmod.game.model.*
 import gg.rsmod.game.model.attr.*
 import gg.rsmod.game.model.bits.INFINITE_VARS_STORAGE
 import gg.rsmod.game.model.bits.InfiniteVarsType
-import gg.rsmod.game.model.collision.CollisionManager
 import gg.rsmod.game.model.combat.DamageMap
-import gg.rsmod.game.model.path.FutureRoute
-import gg.rsmod.game.model.path.PathFindingStrategy
-import gg.rsmod.game.model.path.PathRequest
-import gg.rsmod.game.model.path.Route
-import gg.rsmod.game.model.path.strategy.BFSPathFindingStrategy
-import gg.rsmod.game.model.path.strategy.SimplePathFindingStrategy
 import gg.rsmod.game.model.queue.QueueTask
 import gg.rsmod.game.model.queue.QueueTaskSet
 import gg.rsmod.game.model.queue.TaskPriority
 import gg.rsmod.game.model.queue.impl.PawnQueueTaskSet
-import gg.rsmod.game.model.region.Chunk
 import gg.rsmod.game.model.timer.FROZEN_TIMER
 import gg.rsmod.game.model.timer.RESET_PAWN_FACING_TIMER
 import gg.rsmod.game.model.timer.STUN_TIMER
@@ -30,6 +22,10 @@ import gg.rsmod.game.service.log.LoggerService
 import gg.rsmod.game.sync.block.UpdateBlockBuffer
 import gg.rsmod.game.sync.block.UpdateBlockType
 import kotlinx.coroutines.CoroutineScope
+import org.rsmod.game.pathfinder.PathFinder
+import org.rsmod.game.pathfinder.Route
+import org.rsmod.game.pathfinder.RouteCoordinates
+import org.rsmod.game.pathfinder.collision.CollisionStrategies
 import java.lang.ref.WeakReference
 import java.util.ArrayDeque
 import java.util.Queue
@@ -410,11 +406,19 @@ abstract class Pawn(val world: World) : Entity() {
             return
         }
 
-        val request = PathRequest.createWalkRequest(this, x, z, projectile = false, detectCollision = detectCollision)
-        val strategy = createPathFindingStrategy(copyChunks = false)
+        val pathFinder = PathFinder(this.world.collision)
+        val route = pathFinder.findPath(
+            level = this.tile.height,
+            srcX = this.tile.x,
+            srcZ = this.tile.z,
+            destX = x,
+            destZ = z,
+            srcSize = getSize(),
+            collision = CollisionStrategies.Normal,
+        )
 
-        val route = strategy.calculateRoute(request)
-        walkPath(route.path, stepType, detectCollision)
+        val tileQueue: Queue<Tile> = ArrayDeque(route.waypoints.map { Tile(it.x, it.z, it.level) })
+        this.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = detectCollision)
     }
 
     suspend fun walkTo(it: QueueTask, tile: Tile, stepType: MovementQueue.StepType = MovementQueue.StepType.NORMAL, detectCollision: Boolean = true) = walkTo(it, tile.x, tile.z, stepType, detectCollision)
@@ -424,15 +428,25 @@ abstract class Pawn(val world: World) : Entity() {
          * Already standing on requested destination.
          */
         if (tile.x == x && tile.z == z) {
-            return Route(EMPTY_TILE_DEQUE, success = true, tail = Tile(tile))
+            return Route(EMPTY_TILE_DEQUE, alternative = false, success = true)
         }
-        val request = PathRequest.createWalkRequest(this, x, z, projectile = false, detectCollision = detectCollision)
-        val strategy = createPathFindingStrategy(copyChunks = false)
+
+        val pathFinder = PathFinder(this.world.collision)
+        val route = pathFinder.findPath(
+            level = this.tile.height,
+            srcX = this.tile.x,
+            srcZ = this.tile.z,
+            destX = x,
+            destZ = z,
+            srcSize = getSize(),
+            collision = CollisionStrategies.Normal,
+        )
 
         movementQueue.clear()
 
-        val route = strategy.calculateRoute(request)
-        walkPath(route.path, stepType, detectCollision)
+        val tileQueue: Queue<Tile> = ArrayDeque(route.waypoints.map { Tile(it.x, it.z, it.level) })
+        this.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = detectCollision)
+
         return route
     }
 
@@ -568,17 +582,7 @@ abstract class Pawn(val world: World) : Entity() {
         world.getService(LoggerService::class.java, searchSubclasses = true)?.logEvent(this, event)
     }
 
-    internal fun createPathFindingStrategy(copyChunks: Boolean = false): PathFindingStrategy {
-        val collision: CollisionManager = if (copyChunks) {
-            val chunks = world.chunks.copyChunksWithinRadius(tile.chunkCoords, height = tile.height, radius = Chunk.CHUNK_VIEW_RADIUS)
-            CollisionManager(chunks, createChunksIfNeeded = false)
-        } else {
-            world.collision
-        }
-        return if (entityType.isPlayer) BFSPathFindingStrategy(collision) else SimplePathFindingStrategy(collision)
-    }
-
     companion object {
-        private val EMPTY_TILE_DEQUE = ArrayDeque<Tile>()
+        val EMPTY_TILE_DEQUE = ArrayList<RouteCoordinates>()
     }
 }

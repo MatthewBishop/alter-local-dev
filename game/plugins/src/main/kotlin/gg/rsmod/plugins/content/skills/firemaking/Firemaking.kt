@@ -62,9 +62,9 @@ object Firemaking {
                 player.animate(-1)
 
                 var targetWalkTile: Tile = Tile(player.tile.x-1, player.tile.z, player.tile.height)
-                if(player.world.collision.isBlocked(targetWalkTile, Direction.WEST, false)) {
+                if(player.world.canTraverse(targetWalkTile, Direction.WEST)) {
                     targetWalkTile = Tile(player.tile.x+1, player.tile.z, player.tile.height)
-                    if(player.world.collision.isBlocked(targetWalkTile, Direction.EAST, false)) {
+                    if(player.world.canTraverse(targetWalkTile, Direction.EAST)) {
                         targetWalkTile = player.tile
                     }
                 }

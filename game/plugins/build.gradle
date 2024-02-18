@@ -8,6 +8,9 @@ dependencies {
     implementation project(':util')
     implementation "it.unimi.dsi:fastutil:$fastUtilVersion"
     implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.8.0"
+
+    // https://mvnrepository.com/artifact/org.rsmod/rsmod-pathfinder
+    implementation("org.rsmod:rsmod-pathfinder:4.2.1")
 }
 
 dokka {

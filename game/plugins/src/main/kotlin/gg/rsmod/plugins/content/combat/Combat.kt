@@ -21,6 +21,8 @@ import gg.rsmod.plugins.content.combat.strategy.MeleeCombatStrategy
 import gg.rsmod.plugins.content.combat.strategy.RangedCombatStrategy
 import gg.rsmod.plugins.content.combat.strategy.magic.CombatSpell
 import gg.rsmod.plugins.content.inter.attack.AttackTab
+import gg.rsmod.game.model.collision.raycast
+import gg.rsmod.game.model.collision.raycastTiles
 import java.lang.ref.WeakReference
 
 /**
@@ -123,7 +125,7 @@ object Combat {
 
     fun getProjectileLifespan(source: Pawn, target: Tile, type: ProjectileType): Int = when (type) {
         ProjectileType.MAGIC -> {
-            val fastPath = source.world.collision.raycastTiles(source.tile, target)
+            val fastPath = raycastTiles(source.tile, target)
             5 + (fastPath * 10)
         }
         else -> {
