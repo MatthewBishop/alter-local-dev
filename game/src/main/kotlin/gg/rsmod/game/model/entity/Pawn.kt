@@ -406,8 +406,7 @@ abstract class Pawn(val world: World) : Entity() {
             return
         }
 
-        val pathFinder = PathFinder(this.world.collision)
-        val route = pathFinder.findPath(
+        val route = world.pathFinder.findPath(
             level = this.tile.height,
             srcX = this.tile.x,
             srcZ = this.tile.z,
@@ -418,7 +417,7 @@ abstract class Pawn(val world: World) : Entity() {
         )
 
         val tileQueue: Queue<Tile> = ArrayDeque(route.waypoints.map { Tile(it.x, it.z, it.level) })
-        this.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = detectCollision)
+        this.walkPath(tileQueue, stepType, detectCollision = detectCollision)
     }
 
     suspend fun walkTo(it: QueueTask, tile: Tile, stepType: MovementQueue.StepType = MovementQueue.StepType.NORMAL, detectCollision: Boolean = true) = walkTo(it, tile.x, tile.z, stepType, detectCollision)
@@ -431,8 +430,7 @@ abstract class Pawn(val world: World) : Entity() {
             return Route(EMPTY_TILE_DEQUE, alternative = false, success = true)
         }
 
-        val pathFinder = PathFinder(this.world.collision)
-        val route = pathFinder.findPath(
+        val route = world.pathFinder.findPath(
             level = this.tile.height,
             srcX = this.tile.x,
             srcZ = this.tile.z,
@@ -445,7 +443,7 @@ abstract class Pawn(val world: World) : Entity() {
         movementQueue.clear()
 
         val tileQueue: Queue<Tile> = ArrayDeque(route.waypoints.map { Tile(it.x, it.z, it.level) })
-        this.walkPath(tileQueue, MovementQueue.StepType.NORMAL, detectCollision = detectCollision)
+        this.walkPath(tileQueue, stepType, detectCollision = detectCollision)
 
         return route
     }

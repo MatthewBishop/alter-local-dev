@@ -200,8 +200,7 @@ object PawnPathAction {
             }
         }
 
-        val pathFinder = PathFinder(pawn.world.collision)
-        val newRoute = pathFinder.findPath(
+        val newRoute = pawn.world.pathFinder.findPath(
             level = pawn.tile.height,
             srcX = sourceTile.x,
             srcZ = sourceTile.z,
